@@ -16,9 +16,8 @@ else:
     # Configure the Gemini API client
     genai.configure(api_key=gemini_api_key)
     
-    # 【修正ポイント】モデル名の先頭に 'models/' を追加して明示的に指定します
-    # ※もしこれで動かない場合は "models/gemini-2.0-flash" や "gemini-pro" に変更してみてください
-    model = genai.GenerativeModel("gemini-2.0-flash")
+    # 【解決策】エラーメッセージの指示通り、最新のモデルを指定します
+    model = genai.GenerativeModel("models/gemini-3.8-flash")
 
     # Create a session state variable to store the chat messages.
     if "messages" not in st.session_state:
@@ -64,5 +63,5 @@ else:
             st.session_state.messages.append({"role": "assistant", "content": full_response})
 
         except Exception as e:
-            # 【修正ポイント】Streamlit Cloudのエラー隠蔽を回避し、本当のエラー原因を画面に赤字で表示します
+            # エラー原因を画面に表示します
             st.error(f"APIエラーが発生しました。詳細: {str(e)}")
