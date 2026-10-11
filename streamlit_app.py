@@ -16,7 +16,8 @@ else:
     # Configure the Gemini API client
     genai.configure(api_key=gemini_api_key)
     
-    # Initialize the Gemini model (gemini-1.5-flash is fast and recommended for general chat)
+    # 【修正ポイント】モデル名の先頭に 'models/' を追加して明示的に指定します
+    # ※もしこれで動かない場合は "models/gemini-2.0-flash" や "gemini-pro" に変更してみてください
     model = genai.GenerativeModel("models/gemini-1.5-flash")
 
     # Create a session state variable to store the chat messages.
@@ -37,27 +38,31 @@ else:
             st.markdown(prompt)
 
         # 過去のメッセージ履歴をGemini APIの形式に変換
-        # Streamlitの "assistant" ロールを Geminiの "model" ロールにマッピングします
         gemini_history = []
         for msg in st.session_state.messages[:-1]:  # 最新のプロンプトを除く
             role = "model" if msg["role"] == "assistant" else "user"
             gemini_history.append({"role": role, "parts": [msg["content"]]})
 
-        # チャットセッションの開始（履歴を引き継ぐ）
-        chat = model.start_chat(history=gemini_history)
+        try:
+            # チャットセッションの開始
+            chat = model.start_chat(history=gemini_history)
 
-        # 応答の生成（ストリーミングを有効化）
-        response = chat.send_message(prompt, stream=True)
+            # 応答の生成（ストリーミングを有効化）
+            response = chat.send_message(prompt, stream=True)
 
-        # Streamlitの st.write_stream 用に、テキストチャンクを返すジェネレーターを定義
-        def stream_generator():
-            for chunk in response:
-                if chunk.text:
-                    yield chunk.text
+            # Streamlitの st.write_stream 用のジェネレーター
+            def stream_generator():
+                for chunk in response:
+                    if chunk.text:
+                        yield chunk.text
 
-        # Stream the response to the chat using `st.write_stream`
-        with st.chat_message("assistant"):
-            full_response = st.write_stream(stream_generator())
-            
-        # 最終的な応答をセッションステートに保存
-        st.session_state.messages.append({"role": "assistant", "content": full_response})
+            # Stream the response to the chat
+            with st.chat_message("assistant"):
+                full_response = st.write_stream(stream_generator())
+                
+            # 最終的な応答をセッションステートに保存
+            st.session_state.messages.append({"role": "assistant", "content": full_response})
+
+        except Exception as e:
+            # 【修正ポイント】Streamlit Cloudのエラー隠蔽を回避し、本当のエラー原因を画面に赤字で表示します
+            st.error(f"APIエラーが発生しました。詳細: {str(e)}")
