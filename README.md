@@ -9,9 +9,9 @@ Streamlit と Google Gemini API を活用して作成した、社員の健康状
 - **⚠️ エスカレーション機能:** 健康リスク（体調不良や極端な睡眠不足など）をAIが検知した場合、上司への報告アラートを自動で出力します。
 - **⛅ 天気情報の自動取得:** 本日の天気（デフォルト: 大阪）を自動で取得し、会話の最後に添えてくれます。
 
-## 🌐 デモ画面
+## 🌐 デモ画面URL
 こちらから実際のアプリをお試しいただけます。
-👉 [アプリのURLをここに貼り付けてください（例: https://your-app-name.streamlit.app）]
+👉 (https://chatbot-3y4irecbtwy.streamlit.app/)
 
 ## 🛠️ 使用技術
 - Python 3
@@ -25,3 +25,6 @@ Streamlit と Google Gemini API を活用して作成した、社員の健康状
 1. リポジトリをクローンします。
 ```bash
 git clone [https://github.com/あなたのユーザー名/リポジトリ名.git](https://github.com/あなたのユーザー名/リポジトリ名.git)
+
+### GitHubへの追加方法
+もしブラウザ上（GitHubの画面上）から直接追加したい場合は、リポジトリの画面にある **「Add file」** ＞ **「Create new file」** をクリックし、ファイル名を `README.md` と入力して、上記のテキストを貼り付ければ完了です。
