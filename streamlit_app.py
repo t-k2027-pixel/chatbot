@@ -17,7 +17,7 @@ else:
     genai.configure(api_key=gemini_api_key)
     
     # Initialize the Gemini model (gemini-1.5-flash is fast and recommended for general chat)
-    model = genai.GenerativeModel("gemini-1.5-flash")
+    model = genai.GenerativeModel("models/gemini-1.5-flash")
 
     # Create a session state variable to store the chat messages.
     if "messages" not in st.session_state:
