@@ -20,8 +20,8 @@ except KeyError:
 genai.configure(api_key=gemini_api_key)
     
     # 【修正1】Streamlit Cloudは海外サーバーなので、日本時間（JST）を取得する設定を追加
-    JST = timezone(timedelta(hours=+9), 'JST')
-    today_str = datetime.now(JST).strftime("%Y年%m月%d日")
+JST = timezone(timedelta(hours=+9), 'JST')
+today_str = datetime.now(JST).strftime("%Y年%m月%d日")
 
     # 【修正2】system_instructionを使って、AIに今日の日付と役割を教え込む
     model = genai.GenerativeModel(
