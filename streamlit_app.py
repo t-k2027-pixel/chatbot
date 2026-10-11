@@ -29,7 +29,8 @@ today_str = datetime.now(JST).strftime("%Y年%m月%d日")
 
 # 大阪の天気を取得する（外部API wttr.in を利用）
 try:
-    req = urllib.request.Request("https://wttr.in/Osaka?format=4", headers={'User-Agent': 'Mozilla/5.0'})
+    # ブラウザではなく、コマンドラインツール(curl)のふりをしてテキストデータだけをもらう
+    req = urllib.request.Request("https://wttr.in/Osaka?format=4", headers={'User-Agent': 'curl/7.68.0'})
     with urllib.request.urlopen(req, timeout=3) as response:
         osaka_weather = response.read().decode('utf-8').strip()
 except Exception:
