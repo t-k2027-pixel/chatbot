@@ -5,7 +5,7 @@ Streamlit と Google Gemini API を活用して作成した、社員の健康状
 
 ## 🌐 デモ画面
 こちらから実際のアプリをお試しいただけます。
-👉 [アプリのURLをここに貼り付けてください（例: https://your-app-name.streamlit.app）]
+👉 （https://chatbot-3y4irecbtwy.streamlit.app/）
 
 ## ✨ アピールポイント・オリジナリティ（こだわった点）
 既存のチャットボットや定型フォームでのアンケートにはない、AIとプログラミングを組み合わせた独自の工夫を取り入れています。
