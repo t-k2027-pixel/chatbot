@@ -7,6 +7,8 @@ Streamlit と Google Gemini API を活用して作成した、社員の健康状
 こちらから実際のアプリをお試しいただけます。
 👉 （https://chatbot-3y4irecbtwy.streamlit.app/）
 
+<img width="894" height="611" alt="熊本大セミナー用 2026-10-11 145307" src="https://github.com/user-attachments/assets/b6f8d9b9-82dc-48ed-8cfd-716a33572504" />
+
 ## ✨ アピールポイント・オリジナリティ（こだわった点）
 既存のチャットボットや定型フォームでのアンケートにはない、AIとプログラミングを組み合わせた独自の工夫を取り入れています。
 
