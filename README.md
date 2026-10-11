@@ -1,19 +1,27 @@
-# 💬 Chatbot template
+# ☀️ 朝の健康・タスク確認アシスタント
 
-A simple Streamlit app that shows how to build a chatbot using OpenAI's GPT-3.5.
+Streamlit と Google Gemini API を活用して作成した、社員の健康状態とタスクを確認するためのAIチャットボットです。
+毎朝の始業前にAIとチャットするだけで、自然な会話の中から必要な情報をヒアリングし、日報としてまとめてくれます。
 
-[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://chatbot-template.streamlit.app/)
+## 🌟 主な機能
+- **🗣️ 自然なヒアリング:** 体調、睡眠の質、アルコール摂取の有無、本日のタスクをAIが優しく聞き出します。
+- **🩺 体調不良の深掘り:** 「寝不足」「二日酔い」などのネガティブなワードを検知すると、AIが理由や詳細を自動で深掘りします。
+- **⚠️ エスカレーション機能:** 健康リスク（体調不良や極端な睡眠不足など）をAIが検知した場合、上司への報告アラートを自動で出力します。
+- **⛅ 天気情報の自動取得:** 本日の天気（デフォルト: 大阪）を自動で取得し、会話の最後に添えてくれます。
 
-### How to run it on your own machine
+## 🌐 デモ画面
+こちらから実際のアプリをお試しいただけます。
+👉 [アプリのURLをここに貼り付けてください（例: https://your-app-name.streamlit.app）]
 
-1. Install the requirements
+## 🛠️ 使用技術
+- Python 3
+- Streamlit (Web UIフレームワーク)
+- Google Gemini API (gemini-3.8-flash)
+- wttr.in (天気情報の取得)
 
-   ```
-   $ pip install -r requirements.txt
-   ```
+## 🚀 ローカル環境での動かし方
+ご自身のパソコンで動かす場合の手順です。
 
-2. Run the app
-
-   ```
-   $ streamlit run streamlit_app.py
-   ```
+1. リポジトリをクローンします。
+```bash
+git clone [https://github.com/あなたのユーザー名/リポジトリ名.git](https://github.com/あなたのユーザー名/リポジトリ名.git)
