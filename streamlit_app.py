@@ -2,8 +2,9 @@ import streamlit as st
 import google.generativeai as genai
 from datetime import datetime, timezone, timedelta
 import urllib.request
+import json  # 【追加】天気データを処理するためのライブラリ
 
-# 【追加】上司のメールアドレス（ダミー）
+# 上司のメールアドレス（ダミー）
 BOSS_EMAIL = "boss_taro@example.co.jp"
 
 # タイトルと説明文
@@ -27,16 +28,35 @@ genai.configure(api_key=gemini_api_key)
 JST = timezone(timedelta(hours=+9), 'JST')
 today_str = datetime.now(JST).strftime("%Y年%m月%d日")
 
-# 大阪の天気を取得する（外部API wttr.in を利用）
+# 【修正】大阪の天気を取得する（Open-Meteo APIを使用）
 try:
-    # ブラウザではなく、コマンドラインツール(curl)のふりをしてテキストデータだけをもらう
-    req = urllib.request.Request("https://wttr.in/Osaka?format=4", headers={'User-Agent': 'curl/7.68.0'})
+    # 大阪の緯度・経度を指定して、現在の天気と最高・最低気温を取得
+    url = "https://api.open-meteo.com/v1/forecast?latitude=34.6937&longitude=135.5022&daily=temperature_2m_max,temperature_2m_min&current_weather=true&timezone=Asia%2FTokyo"
+    req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
     with urllib.request.urlopen(req, timeout=3) as response:
-        osaka_weather = response.read().decode('utf-8').strip()
+        data = json.loads(response.read().decode('utf-8'))
+        
+        # 天気コードを絵文字に変換
+        wmo_codes = {
+            0: '☀️', 1: '🌤️', 2: '⛅', 3: '☁️',
+            45: '🌫️', 48: '🌫️', 51: '🌧️', 53: '🌧️', 55: '🌧️',
+            61: '☔', 63: '☔', 65: '☔', 71: '⛄', 73: '⛄', 75: '⛄',
+            95: '⚡', 96: '⛈️', 99: '⛈️'
+        }
+        code = data['current_weather']['weathercode']
+        icon = wmo_codes.get(code, '☁️') # 当てはまらない場合はデフォルトで曇り
+        
+        # 必要な数値を抽出して文章を組み立てる
+        current_temp = data['current_weather']['temperature']
+        max_temp = data['daily']['temperature_2m_max'][0]
+        min_temp = data['daily']['temperature_2m_min'][0]
+        
+        # ご要望の形式にフォーマット
+        osaka_weather = f"{icon} 現在 {current_temp}℃ (最高 {max_temp}℃ / 最低 {min_temp}℃)"
 except Exception:
     osaka_weather = "取得できませんでした（晴れるといいですね！）"
 
-# 【アップデート】アラート機能の指示をシステムプロンプトに追加
+# アラート機能の指示をシステムプロンプトに追加
 system_instruction = f"""
 あなたは企業の親切な「朝の健康・タスク管理アシスタント」です。
 今日の日付は{today_str}、現在の大阪の天気予報は「{osaka_weather}」です。
@@ -59,7 +79,7 @@ system_instruction = f"""
 タスク内容を聞き終わったら、以下の構成で出力して会話を終了してください。
 1. 本日のヒアリング内容のまとめ（綺麗な箇条書きで）
 2. 今日の大阪の天気（「{osaka_weather}」を含める）
-3. 社員が1日を頑張れるような、前向きで元気になる「アドバイス」
+3. 社員が1日を頑張れるような、前向きで「元気になるひとこと」
 
 【重要：上司への自動報告アラート】
 社員の回答から「体調不良（発熱など）」「アルコール摂取（二日酔いや飲酒の事実）」「極端な睡眠不足」のいずれかが認められた場合、あなたの**返答テキストの一番最後に必ず `[ALERT]` という文字列を含めて**ください。システムがこれを検知して上司に連絡します。（※ユーザーを責めるのではなく、心配するトーンを保ってください）
@@ -103,7 +123,7 @@ if prompt := st.chat_input("ここに入力（例：少し寝不足ですが、�
         with st.spinner("AIが入力内容を確認中..."):
             response = chat.send_message(prompt, stream=False)
             
-            # 【追加】AIの返答からアラートのタグを検知する
+            # AIの返答からアラートのタグを検知する
             reply_text = response.text
             alert_triggered = False
             
@@ -116,11 +136,9 @@ if prompt := st.chat_input("ここに入力（例：少し寝不足ですが、�
         with st.chat_message("assistant"):
             st.markdown(reply_text)
             
-        # アラートが検知された場合、警告メッセージを表示（ここでメール送信処理を行う想定）
+        # アラートが検知された場合、警告メッセージを表示
         if alert_triggered:
             st.error(f"⚠️ 【システム通知】体調不良または睡眠不足・アルコール摂取が検知されました。\n安全のため、上司（{BOSS_EMAIL}）へ自動的に報告メールを送信しました。無理をせず、必要があればお休みを取ってください。")
-            
-            # ※実際にメールを送る場合は、ここに smtplib や SendGridAPI などを使ったメール送信コードを記述します。
             
         st.session_state.messages.append({"role": "assistant", "content": reply_text})
 
