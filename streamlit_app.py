@@ -18,7 +18,7 @@ else:
     
     # 【修正ポイント】モデル名の先頭に 'models/' を追加して明示的に指定します
     # ※もしこれで動かない場合は "models/gemini-2.0-flash" や "gemini-pro" に変更してみてください
-   　model = genai.GenerativeModel("gemini-pro")
+    model = genai.GenerativeModel("gemini-pro")
 
     # Create a session state variable to store the chat messages.
     if "messages" not in st.session_state:
