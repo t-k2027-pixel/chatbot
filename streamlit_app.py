@@ -1,14 +1,15 @@
 import streamlit as st
 import google.generativeai as genai
+from datetime import datetime, timezone, timedelta
 
 # Show title and description.
 st.title("💬 Gemini Chatbot")
 st.write(
     "This is a simple chatbot that uses Google's Gemini model to generate responses. "
-    "To use this app, you need to provide a Gemini API key, which you can get [here](https://aistudio.google.com/app/apikey). "
+    "To use this app, you need to provide a Gemini API key."
 )
 
-# Ask user for their Gemini API key via `st.text_input`.
+# Ask user for their Gemini API key
 gemini_api_key = st.text_input("Gemini API Key", type="password")
 if not gemini_api_key:
     st.info("Please add your Gemini API key to continue.", icon="🗝️")
@@ -16,52 +17,44 @@ else:
     # Configure the Gemini API client
     genai.configure(api_key=gemini_api_key)
     
-    # 【解決策】エラーメッセージの指示通り、最新のモデルを指定します
-    model = genai.GenerativeModel("models/gemini-3.8-flash")
+    # 【修正1】Streamlit Cloudは海外サーバーなので、日本時間（JST）を取得する設定を追加
+    JST = timezone(timedelta(hours=+9), 'JST')
+    today_str = datetime.now(JST).strftime("%Y年%m月%d日")
 
-    # Create a session state variable to store the chat messages.
+    # 【修正2】system_instructionを使って、AIに今日の日付と役割を教え込む
+    model = genai.GenerativeModel(
+        "models/gemini-3.8-flash",
+        system_instruction=f"あなたは親切なAIアシスタントです。今日の日付は{today_str}です。"
+    )
+
     if "messages" not in st.session_state:
         st.session_state.messages = []
 
-    # Display the existing chat messages via `st.chat_message`.
     for message in st.session_state.messages:
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
 
-    # Create a chat input field to allow the user to enter a message.
     if prompt := st.chat_input("What is up?"):
-
-        # Store and display the current prompt.
         st.session_state.messages.append({"role": "user", "content": prompt})
         with st.chat_message("user"):
             st.markdown(prompt)
 
-        # 過去のメッセージ履歴をGemini APIの形式に変換
         gemini_history = []
-        for msg in st.session_state.messages[:-1]:  # 最新のプロンプトを除く
+        for msg in st.session_state.messages[:-1]:
             role = "model" if msg["role"] == "assistant" else "user"
             gemini_history.append({"role": role, "parts": [msg["content"]]})
 
         try:
-            # チャットセッションの開始
             chat = model.start_chat(history=gemini_history)
 
-            # 応答の生成（ストリーミングを有効化）
-            response = chat.send_message(prompt, stream=True)
+            # 【修正3】stream=False に変更。少し待機したのち、回答が一瞬で表示されるようになります
+            with st.spinner("AIが考え中..."):
+                response = chat.send_message(prompt, stream=False)
 
-            # Streamlitの st.write_stream 用のジェネレーター
-            def stream_generator():
-                for chunk in response:
-                    if chunk.text:
-                        yield chunk.text
-
-            # Stream the response to the chat
             with st.chat_message("assistant"):
-                full_response = st.write_stream(stream_generator())
+                st.markdown(response.text)
                 
-            # 最終的な応答をセッションステートに保存
-            st.session_state.messages.append({"role": "assistant", "content": full_response})
+            st.session_state.messages.append({"role": "assistant", "content": response.text})
 
         except Exception as e:
-            # エラー原因を画面に表示します
             st.error(f"APIエラーが発生しました。詳細: {str(e)}")
