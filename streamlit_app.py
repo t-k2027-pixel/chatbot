@@ -10,7 +10,7 @@ st.write(
 )
 
 # Ask user for their Gemini API key
-gemini_api_key = st.text_input("Gemini API Key", type="password")
+gemini_api_key =st.secrets['app.py_APIKey']
 if not gemini_api_key:
     st.info("Please add your Gemini API key to continue.", icon="🗝️")
 else:
