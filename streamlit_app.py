@@ -9,13 +9,15 @@ st.write(
     "To use this app, you need to provide a Gemini API key."
 )
 
-# Ask user for their Gemini API key
-gemini_api_key =st.secrets['app.py_APIKey']
-if not gemini_api_key:
-    st.info("Please add your Gemini API key to continue.", icon="🗝️")
-else:
-    # Configure the Gemini API client
-    genai.configure(api_key=gemini_api_key)
+# 【修正】st.secretsからAPIキーを取得する
+try:
+    gemini_api_key = st.secrets["GEMINI_API_KEY"]
+except KeyError:
+    st.error("APIキーが設定されていません。Streamlit Cloudの「Secrets」設定を確認してください。")
+    st.stop() # ここで処理を停止します
+
+# APIキーの設定
+genai.configure(api_key=gemini_api_key)
     
     # 【修正1】Streamlit Cloudは海外サーバーなので、日本時間（JST）を取得する設定を追加
     JST = timezone(timedelta(hours=+9), 'JST')
